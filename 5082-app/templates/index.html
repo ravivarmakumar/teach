@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>INFO 5082(020) - Seminar in Research and Research Methodology (Fall 2024)</title>
+  <style>
+    .container {
+      width: 400px;
+      margin: 50px auto;
+      text-align: center;
+      border: 1px solid #ccc;
+      padding: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #completedNumbersBox {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      display: none;
+    }
+
+    #completedNumbersList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #completedNumbersList li {
+      display: inline;
+      color: green;
+    }
+
+    #completedNumbersList li:not(:last-child)::after {
+      content: ", ";
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="title">Final Research Presentations</h1>
+    <div id="groupMessage">
+      <!-- Message will dynamically update -->
+    </div>
+    <button id="generateButton">First Group</button>
+    <button id="showCompletedButton">Show Completed Groups</button>
+
+    <div id="completedNumbersBox">
+      <h2>Completed Groups:</h2>
+      <ul id="completedNumbersList"></ul>
+    </div>
+  </div>
+  <script>
+    const generateButton = document.getElementById('generateButton');
+    const showCompletedButton = document.getElementById('showCompletedButton');
+    const completedNumbersBox = document.getElementById('completedNumbersBox');
+    const completedNumbersList = document.getElementById('completedNumbersList');
+    const groupMessage = document.getElementById('groupMessage');
+    const title = document.getElementById('title');
+
+    // Fetch a new number when clicking the "Generate" button
+    generateButton.addEventListener('click', () => {
+      fetch('/generate_number')
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.all_done) {
+            title.textContent = 'Presentations completed!';
+            generateButton.style.display = 'none';
+            groupMessage.style.display = 'none';
+            showCompletedButton.style.display = 'none';
+          } else {
+            groupMessage.innerHTML = `The group that would be presenting is... <span style="color: blue;">${data.number}</span>`;
+            generateButton.textContent = 'Next Group';
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching number:', error);
+        });
+    });
+
+    // Fetch the completed numbers when clicking "Show Completed Groups"
+    showCompletedButton.addEventListener('click', () => {
+      completedNumbersBox.style.display = 'block';
+
+      fetch('/get_completed_numbers')
+        .then((response) => response.json())
+        .then((data) => {
+          completedNumbersList.innerHTML = data.map((num) => `<li>${num}</li>`).join('');
+        })
+        .catch((error) => {
+          console.error('Error fetching completed numbers:', error);
+        });
+    });
+  </script>
+</body>
+</html>
